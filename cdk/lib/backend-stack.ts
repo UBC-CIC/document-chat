@@ -6,6 +6,8 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as logs from 'aws-cdk-lib/aws-logs';
 
 import { VpcStack } from './vpc-stack';
 
@@ -105,5 +107,28 @@ export class BackendStack extends cdk.Stack {
     dbInstance.secret!.grantRead(chatFunction);
     chatFunction.connections.allowToDefaultPort(dbInstance);
 
+    const apiGWLogGroup = new logs.LogGroup(this, "APIGWLog");
+
+    const apiGW = new apigateway.RestApi(this, 'Api', {
+      restApiName: "LCI",
+      endpointTypes: [apigateway.EndpointType.REGIONAL],
+      cloudWatchRole: true,
+      deploy: true,
+      deployOptions: {
+        metricsEnabled: true,
+        dataTraceEnabled: true,
+        loggingLevel: apigateway.MethodLoggingLevel.ERROR,
+        accessLogDestination: new apigateway.LogGroupLogDestination(apiGWLogGroup)
+      }
+    });
+
+    const uploadIntegration = new apigateway.LambdaIntegration(uploaderFunction);
+    const chatIntegration = new apigateway.LambdaIntegration(documentProcessorFunction);
+
+    const uploadLinkResource = apiGW.root.addResource('get-upload-url');
+    const chatResource = apiGW.root.addResource('prompt');
+
+    const uploadMethod = uploadLinkResource.addMethod('GET', uploadIntegration);
+    chatResource.addMethod('GET', chatIntegration);
   }
 }
