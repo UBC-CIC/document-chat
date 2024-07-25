@@ -11,7 +11,7 @@ from langchain_community.embeddings import BedrockEmbeddings
 
 
 def handler(event, context):
-    prompt = event.get('prompt')
+    prompt = event['queryStringParameters']['prompt']
     chain = create_chain()
     response = chain.invoke({'input': prompt})
     
