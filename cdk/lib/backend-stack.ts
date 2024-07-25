@@ -112,6 +112,9 @@ export class BackendStack extends cdk.Stack {
     const apiGW = new apigateway.RestApi(this, 'Api', {
       restApiName: "LCI",
       endpointTypes: [apigateway.EndpointType.REGIONAL],
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS
+      },
       cloudWatchRole: true,
       deploy: true,
       deployOptions: {
@@ -123,7 +126,7 @@ export class BackendStack extends cdk.Stack {
     });
 
     const uploadIntegration = new apigateway.LambdaIntegration(uploaderFunction);
-    const chatIntegration = new apigateway.LambdaIntegration(documentProcessorFunction);
+    const chatIntegration = new apigateway.LambdaIntegration(chatFunction);
 
     const uploadLinkResource = apiGW.root.addResource('get-upload-url');
     const chatResource = apiGW.root.addResource('prompt');

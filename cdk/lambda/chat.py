@@ -3,7 +3,7 @@ import os
 import json
 
 from langchain.chains import create_retrieval_chain
-from langchain.llms.bedrock import Bedrock
+from langchain_community.llms.bedrock import Bedrock
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_postgres.vectorstores import PGVector
