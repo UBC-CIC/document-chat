@@ -12,10 +12,53 @@ const Navigation = () => {
     fileInputRef.current.click();
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const files = Array.from(event.target.files);
     const pdfFiles = files.filter(file => file.type === 'application/pdf');
-    setUploadedDocs(prevDocs => [...prevDocs, ...pdfFiles.map(file => file.name)]);
+
+    /** TODO: Handle multiple file uploads & lock screen while uploading files. */
+    pdfFiles.forEach(async file => {
+      try {
+        const response = await fetch(import.meta.env.VITE_SIGNED_URL_ENDPOINT + '?object_key=' + file.name, {
+          method: 'GET',
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log(`Signed URL for ${file.name}: ${data.url}`);
+
+        /** upload is commented until CORS fixed 
+      
+        // Upload the document to the signed URL // TODO: Verify
+        const uploadResponse = await fetch(data.url, {
+          method: 'POST',
+          body: {
+            data: data.fields,
+            files: file,
+          },
+          headers: {
+            'Content-Type': 'application/pdf',
+          },
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload document');
+        }
+
+        console.log(`Successfully uploaded ${file.name}`);
+
+        setUploadedDocs(prevDocs => [...prevDocs, file.name]);
+
+        */
+      } catch (error) {
+        console.error(`Failed to get signed URL for ${file.name}:`, error);
+      }
+
+      
+    });
   };
 
   return (
@@ -24,9 +67,9 @@ const Navigation = () => {
       <Box pt={6}>
         <Typography variant="h7">Documents</Typography>
         <List>
-          {uploadedDocs.map((doc, index) => (
+          {uploadedDocs.map((filename, index) => (
             <ListItem key={index} style={{ paddingLeft: '20px' }}>
-              <Typography variant='body2'>{doc} </Typography>
+              <Typography variant='body2'>{filename} </Typography>
             </ListItem>
           ))}
         </List>

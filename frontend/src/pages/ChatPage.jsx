@@ -18,16 +18,56 @@ const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
-  const handleSend = () => {
+  // const handleSend = () => {
+  //   if (input.trim()) {
+  //     setMessages([...messages, { sender: 'student', text: input, timestamp: new Date().toLocaleTimeString() }]);
+  //     setInput('');
+  //     // Simulate AI response
+  //     setTimeout(() => {
+  //       setMessages(prevMessages => [...prevMessages, { sender: 'ai', text: 'This is an AI response.', timestamp: new Date().toLocaleTimeString() }]);
+  //     }, 1000);
+  //   }
+  // };
+
+
+  const handleSend = async () => {
     if (input.trim()) {
-      setMessages([...messages, { sender: 'student', text: input, timestamp: new Date().toLocaleTimeString() }]);
+      setMessages([...messages, { sender: 'human', text: input, timestamp: new Date().toLocaleTimeString() }]);
       setInput('');
-      // Simulate AI response
-      setTimeout(() => {
-        setMessages(prevMessages => [...prevMessages, { sender: 'ai', text: 'This is an AI response.', timestamp: new Date().toLocaleTimeString() }]);
-      }, 1000);
+
+      // Convert the input into query string
+      const params = new URLSearchParams({ prompt: input });
+      const queryString = params.toString();
+      console.log(queryString); // Output e.x.: "prompt=what%20is%20lci"
+
+      /** upload to backend is commented until CORS fixed
+      
+      // Send the input to the backend
+      try {
+        const response = await fetch(import.meta.env.VITE_PROMPT_ENDPOINT + '?' + queryString, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+  
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+  
+        const data = await response.json(); // TODO: verify the response structure
+        setMessages(prevMessages => [...prevMessages, { sender: 'ai', text: data, timestamp: new Date().toLocaleTimeString() }]);
+
+      
+      } catch (error) {
+        console.error('Failed to send message:', error);
+      }
+      
+      */
+
     }
   };
+
 
   const bg_color_1 = "#eceff1";
   const bg_color_2 = "#f5f5f5";
