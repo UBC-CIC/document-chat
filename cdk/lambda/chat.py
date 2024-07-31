@@ -17,6 +17,11 @@ def handler(event, context):
     
     return {
         'statusCode': 200,
+        'headers': {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*', # TODO: fix for production
+            'Access-Control-Allow-Methods': 'GET'
+        },
         'body': response['answer']
     }
 def create_chain():
