@@ -1,0 +1,22 @@
+node_modules
+package-lock.json
+/layers/*
+!/layers/*.zip
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+cdk.context.json
+
+### OSX ###
+*.DS_Store
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
