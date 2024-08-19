@@ -69,11 +69,12 @@ def lambda_handler(event, context):
 
     collection_name = f"{user_id}_{file_name_full}"
     db_secret = get_db_secret()
+    connection_str = f"postgresql+psycopg2://{db_secret['username']}:{db_secret['password']}@{db_secret['host']}:5432/{db_secret['dbname']}?sslmode=require"
 
     vector_store = PGVector(
         embeddings=embeddings,
         collection_name=collection_name,
-        connection=f"postgresql+psycopg2://{db_secret['username']}:{db_secret['password']}@{db_secret['host']}:5432/{db_secret['dbname']}?sslmode=require",
+        connection= connection_str,
         use_jsonb=True,
     )
 

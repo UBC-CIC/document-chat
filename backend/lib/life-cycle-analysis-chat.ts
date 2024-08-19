@@ -406,10 +406,13 @@ export class LifeCycleAnalysisChatStack extends Stack {
     });
 
 
-    const deleteDocumentFunction = createLambdaFunction('DeleteDocumentFunction', 'src/delete_document/', 'main.lambda_handler', undefined, {
+    const deleteDocumentFunction = createLambdaFunction('DeleteDocumentFunction', 'src/delete_document/', 'main.lambda_handler', vpc, {
       DOCUMENT_TABLE: documentTable.tableName,
       MEMORY_TABLE: memoryTable.tableName,
       BUCKET: documentBucket.bucketName,
+      EMBEDDING_MODEL_ID: embeddingModelId,
+      REGION: this.region,
+      DATABASE_SECRET_NAME: rdsDatabaseInstance.secret!.secretName,
     },
     [
       new iam.PolicyStatement({
@@ -420,7 +423,13 @@ export class LifeCycleAnalysisChatStack extends Stack {
         actions: ['s3:*'],
         resources: [documentBucket.bucketArn, `${documentBucket.bucketArn}/*`],
       }),
+      new iam.PolicyStatement({
+        actions: ['secretsmanager:GetSecretValue'],
+        resources: [rdsDatabaseInstance.secret!.secretArn],
+      }),
     ]);
+    deleteDocumentFunction.connections.allowToDefaultPort(rdsDatabaseInstance);
+    deleteDocumentFunction.addLayers(langchainLayer);
     const deleteDocumentFunctionIntegration = new apigateway.LambdaIntegration(deleteDocumentFunction);
     root_doc_documentid_resource.addMethod('DELETE', deleteDocumentFunctionIntegration, {
       authorizer: cognitoAuthorizer

@@ -36,10 +36,11 @@ def get_db_secret():
 def get_vector_store(bedrock_embeddings, user_id, file_name):
     collection_name = f"{user_id}_{file_name}"
     db_secrets = get_db_secret()
+    connection_str = f"postgresql+psycopg2://{db_secrets['username']}:{db_secrets['password']}@{db_secrets['host']}:5432/{db_secrets['dbname']}?sslmode=require"
     vectorstore = PGVector(
         embeddings=bedrock_embeddings,
         collection_name=collection_name,
-        connection=f"postgresql+psycopg2://{db_secrets['username']}:{db_secrets['password']}@{db_secrets['host']}:5432/{db_secrets['dbname']}?sslmode=require",
+        connection=connection_str,
         use_jsonb=True,
     )
     return vectorstore
