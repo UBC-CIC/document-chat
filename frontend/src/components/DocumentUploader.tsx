@@ -34,7 +34,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({onDocumentUploaded})
 
   const uploadFile = async () => {
     setButtonStatus("uploading");
-    await API.get("life-cycle-analysis-chat", "/generate_presigned_url", {
+    await API.get(import.meta.env.VITE_API_NAME, "/generate_presigned_url", {
       headers: { "Content-Type": "application/json" },
       queryStringParameters: {
         file_name: selectedFile?.name,

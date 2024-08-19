@@ -21,7 +21,7 @@ const Document: React.FC = () => {
   const fetchData = async (conversationid = params.conversationid) => {
     setLoading("loading");
     const conversation = await API.get(
-      "life-cycle-analysis-chat",
+      import.meta.env.VITE_API_NAME,
       `/doc/${params.documentid}/${conversationid}`,
       {}
     );
@@ -40,7 +40,7 @@ const Document: React.FC = () => {
   const addConversation = async () => {
     setConversationListStatus("loading");
     const newConversation = await API.post(
-      "life-cycle-analysis-chat",
+      import.meta.env.VITE_API_NAME,
       `/doc/${params.documentid}`,
       {}
     );
@@ -83,7 +83,7 @@ const Document: React.FC = () => {
     }
 
     await API.post(
-      "life-cycle-analysis-chat",
+      import.meta.env.VITE_API_NAME,
       `/${conversation?.document.documentid}/${conversation?.conversationid}`,
       {
         body: {

@@ -12,7 +12,7 @@ const DocumentList: React.FC = () => {
 
   const fetchData = async () => {
     setListStatus("loading");
-    const documents = await API.get("life-cycle-analysis-chat", "/doc", {});
+    const documents = await API.get(import.meta.env.VITE_API_NAME, "/doc", {});
     setListStatus("idle");
     setDocuments(documents);
   };

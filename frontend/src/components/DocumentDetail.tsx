@@ -27,7 +27,7 @@ const DocumentDetail: React.FC<DocumentDetailProps> = ({document, onDocumentDele
     event.preventDefault();
     setDeleteStatus("deleting");
     await API.del(
-      "life-cycle-analysis-chat",
+      import.meta.env.VITE_API_NAME,
       `doc/${document.documentid}`,
       {}
     );

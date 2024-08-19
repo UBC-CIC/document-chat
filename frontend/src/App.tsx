@@ -15,7 +15,7 @@ Amplify.configure({
   API: {
     endpoints: [
       {
-        name: "life-cycle-analysis-chat",
+        name: import.meta.env.VITE_API_NAME,
         endpoint: import.meta.env.VITE_API_ENDPOINT,
         region: import.meta.env.VITE_API_REGION,
         custom_header: async () => {
