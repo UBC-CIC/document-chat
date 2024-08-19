@@ -28,7 +28,7 @@ const DocumentDetail: React.FC<DocumentDetailProps> = ({document, onDocumentDele
     setDeleteStatus("deleting");
     await API.del(
       import.meta.env.VITE_API_NAME,
-      `doc/${document.documentid}`,
+      `/doc/${document.documentid}`,
       {}
     );
     setDeleteStatus("idle");
