@@ -11,6 +11,9 @@ import * as lambda_event_sources from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as amplify from '@aws-cdk/aws-amplify-alpha';
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as rds from 'aws-cdk-lib/aws-rds';
+// import * as waf from "aws-cdk-lib/aws-wafv2";
+// import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
+// import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import { BuildSpec } from "aws-cdk-lib/aws-codebuild";
 import { Construct } from 'constructs';
 
@@ -496,6 +499,51 @@ export class LifeCycleAnalysisChatStack extends Stack {
       const amplifyBranch = amplifyApp.addBranch('main', {
         autoBuild: true,
       });
+
+      // // CloudFront distribution
+      // const cloudFrontDistribution = new cloudfront.Distribution(this, 'CloudFrontDistribution', {
+      //   defaultBehavior: {
+      //     origin: new origins.HttpOrigin(`${amplifyApp.defaultDomain}`, {
+      //       originPath: '/build'
+      //     }),
+      //     viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      //   },
+      // });
+
+      // // WAF WebACL
+      // const webAcl = new waf.CfnWebACL(this, 'WebACL', {
+      //   defaultAction: { allow: {} },
+      //   scope: 'CLOUDFRONT',
+      //   visibilityConfig: {
+      //     cloudWatchMetricsEnabled: true,
+      //     metricName: 'webACL',
+      //     sampledRequestsEnabled: true,
+      //   },
+      //   rules: [
+      //     {
+      //       name: 'AWS-AWSManagedRulesCommonRuleSet',
+      //       priority: 1,
+      //       overrideAction: { none: {} },
+      //       statement: {
+      //         managedRuleGroupStatement: {
+      //           name: 'AWSManagedRulesCommonRuleSet',
+      //           vendorName: 'AWS'
+      //         }
+      //       },
+      //       visibilityConfig: {
+      //         cloudWatchMetricsEnabled: true,
+      //         metricName: 'AWS-AWSManagedRulesCommonRuleSet',
+      //         sampledRequestsEnabled: true,
+      //       }
+      //     }
+      //   ],
+      // });
+
+      // // Associate WAF with CloudFront
+      // new waf.CfnWebACLAssociation(this, 'WebACLAssociation', {
+      //   resourceArn: cloudFrontDistribution.distributionId,
+      //   webAclArn: webAcl.attrArn,
+      // });
 
       new cdk.CfnOutput(this, 'AmplifyAppId', {
         value: amplifyApp.appId,
