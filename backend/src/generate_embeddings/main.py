@@ -13,6 +13,9 @@ BUCKET = os.environ["BUCKET"]
 EMBEDDING_MODEL_ID = os.environ["EMBEDDING_MODEL_ID"]
 REGION = os.environ["REGION"]
 DATABASE_SECRET_NAME = os.environ["DATABASE_SECRET_NAME"]
+ALL_DOCUMENTS = "ALL_DOCUMENTS"
+PROCESSING = "PROCESSING"
+READY = "READY"
 
 s3 = boto3.client("s3")
 ddb = boto3.resource("dynamodb")
@@ -20,11 +23,27 @@ document_table = ddb.Table(DOCUMENT_TABLE)
 logger = Logger()
 
 
-def set_doc_status(user_id, document_id, status):
+def set_doc_status(user_id, document_id, status, ids=None):
+    if (ids):
+        UpdateExpression="""
+        SET docstatus = :docstatus, 
+        document_split_ids = list_append(if_not_exists(document_split_ids, :empty_list), :ids)
+        """
+        ExpressionAttributeValues={
+            ":docstatus": status,
+            ":ids": ids,
+            ":empty_list": []
+        }
+    else:
+        UpdateExpression="SET docstatus = :docstatus"
+        ExpressionAttributeValues={
+            ":docstatus": status
+        }
+
     document_table.update_item(
         Key={"userid": user_id, "documentid": document_id},
-        UpdateExpression="SET docstatus = :docstatus",
-        ExpressionAttributeValues={":docstatus": status},
+        UpdateExpression=UpdateExpression,
+        ExpressionAttributeValues=ExpressionAttributeValues,
     )
 
 def get_db_secret():
@@ -47,7 +66,8 @@ def lambda_handler(event, context):
     key = event_body["key"]
     file_name_full = key.split("/")[-1]
 
-    set_doc_status(user_id, document_id, "PROCESSING")
+    set_doc_status(user_id, document_id, PROCESSING)
+    set_doc_status(user_id, ALL_DOCUMENTS, PROCESSING)
 
     s3.download_file(BUCKET, key, f"/tmp/{file_name_full}")
 
@@ -67,17 +87,20 @@ def lambda_handler(event, context):
         region_name=REGION,
     )
 
-    collection_name = f"{user_id}_{file_name_full}"
     db_secret = get_db_secret()
     connection_str = f"postgresql+psycopg2://{db_secret['username']}:{db_secret['password']}@{db_secret['host']}:5432/{db_secret['dbname']}?sslmode=require"
 
-    vector_store = PGVector(
-        embeddings=embeddings,
-        collection_name=collection_name,
-        connection= connection_str,
-        use_jsonb=True,
-    )
+    collection_names = [f"{user_id}_{file_name_full}", f"{user_id}_{ALL_DOCUMENTS}"]
+    ids = [f"{user_id}_{file_name_full}_{i}" for i in range(len(split_document))]
+    for collection_name in collection_names:
+        vector_store = PGVector(
+            embeddings=embeddings,
+            collection_name=collection_name,
+            connection= connection_str,
+            use_jsonb=True,
+        )
+    
+        vector_store.add_documents(split_document, ids=ids)
 
-    vector_store.add_documents(split_document)
-
-    set_doc_status(user_id, document_id, "READY")
+    set_doc_status(user_id, document_id, READY, ids)
+    set_doc_status(user_id, ALL_DOCUMENTS, READY, ids)
