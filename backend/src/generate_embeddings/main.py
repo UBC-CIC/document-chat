@@ -90,8 +90,11 @@ def lambda_handler(event, context):
     db_secret = get_db_secret()
     connection_str = f"postgresql+psycopg2://{db_secret['username']}:{db_secret['password']}@{db_secret['host']}:5432/{db_secret['dbname']}?sslmode=require"
 
-    collection_names = [f"{user_id}_{file_name_full}", f"{user_id}_{ALL_DOCUMENTS}"]
-    ids = [f"{user_id}_{file_name_full}_{i}" for i in range(len(split_document))]
+    collection_names = [f"{user_id}_{ALL_DOCUMENTS}", f"{user_id}_{file_name_full}"]
+    ids = {
+        f"{user_id}_{file_name_full}": [f"{user_id}_{file_name_full}_{i}" for i in range(len(split_document))],
+        f"{user_id}_{ALL_DOCUMENTS}": [f"{user_id}_{file_name_full}_{i}_{ALL_DOCUMENTS}" for i in range(len(split_document))]
+    }
     for collection_name in collection_names:
         vector_store = PGVector(
             embeddings=embeddings,
@@ -100,7 +103,7 @@ def lambda_handler(event, context):
             use_jsonb=True,
         )
     
-        vector_store.add_documents(split_document, ids=ids)
+        vector_store.add_documents(split_document, ids=ids[collection_name])
 
-    set_doc_status(user_id, document_id, READY, ids)
-    set_doc_status(user_id, ALL_DOCUMENTS, READY, ids)
+    set_doc_status(user_id, document_id, READY, ids[f"{user_id}_{file_name_full}"])
+    set_doc_status(user_id, ALL_DOCUMENTS, READY, ids[f"{user_id}_{ALL_DOCUMENTS}"])
