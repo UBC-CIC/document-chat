@@ -105,7 +105,7 @@ const Document: React.FC = () => {
         </div>
       )}
       {conversation && (
-        <div className="grid grid-cols-12 border border-gray-200 rounded-lg">
+        <div className="grid grid-cols-12 border border-gray-200 rounded-lg h-[700px]">
           <ChatSidebar
             conversation={conversation}
             params={params}

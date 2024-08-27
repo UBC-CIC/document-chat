@@ -19,6 +19,8 @@ interface DocumentDetailProps {
   onDocumentDeleted?: (document?: Document) => void;
 }
 
+const ALL_DOCUMENTS = "ALL_DOCUMENTS";
+
 const DocumentDetail: React.FC<DocumentDetailProps> = ({document, onDocumentDeleted}) => {
   const navigate = useNavigate();
   const [deleteStatus, setDeleteStatus] = useState<string>("idle");
@@ -39,7 +41,7 @@ const DocumentDetail: React.FC<DocumentDetailProps> = ({document, onDocumentDele
   return (
     <>
       <h3 className="text-center mb-3 text-lg font-bold tracking-tight text-gray-900">
-        {document.filename}
+        {document.filename === ALL_DOCUMENTS ? "All Documents" : document.filename}
       </h3>
       <div className="flex flex-col space-y-2">
         <div className="inline-flex items-center">
@@ -78,14 +80,16 @@ const DocumentDetail: React.FC<DocumentDetailProps> = ({document, onDocumentDele
                 Ready to chat
               </span>
             </div>
-            <div className="flex flex-row">
-              <button
-                onClick={deleteDocument}
-                className="text-gray-700 hover:bg-gray-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg p-2"
-              >
-                <TrashIcon className={`"w-4 h-4 mr-1 ${deleteStatus === "deleting" ? "animate-spin" : ""}`}/>
-              </button>
-            </div>
+            {document.filename !== ALL_DOCUMENTS && 
+              <div className="flex flex-row">
+                <button
+                  onClick={deleteDocument}
+                  className="text-gray-700 hover:bg-gray-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg p-2"
+                >
+                  <TrashIcon className={`"w-4 h-4 mr-1 ${deleteStatus === "deleting" ? "animate-spin" : ""}`}/>
+                </button>
+              </div>
+            }
           </div>
         )}
       </div>

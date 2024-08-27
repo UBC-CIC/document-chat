@@ -491,7 +491,7 @@ export class LifeCycleAnalysisChatStack extends Stack {
           VITE_API_ENDPOINT: `https://${api.restApiId}.execute-api.${this.region}.${cdk.Aws.URL_SUFFIX}/dev`,
           VITE_USER_POOL_ID: userPool.userPoolId,
           VITE_USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
-          VITE_APP_NAME: 'Life Cycle Analysis Chat',
+          VITE_APP_NAME: 'Life Cycle Chat',
           VITE_API_NAME: `${api.restApiName}`
         },
       });

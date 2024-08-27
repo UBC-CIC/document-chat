@@ -6,6 +6,8 @@ import { ArrowPathRoundedSquareIcon } from "@heroicons/react/24/outline";
 import { Document } from "../common/types";
 import Loading from "../../public/loading-grid.svg";
 
+const ALL_DOCUMENTS = "ALL_DOCUMENTS";
+
 const DocumentList: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [listStatus, setListStatus] = useState<string>("idle");
@@ -14,7 +16,14 @@ const DocumentList: React.FC = () => {
     setListStatus("loading");
     const documents = await API.get(import.meta.env.VITE_API_NAME, "/doc", {});
     setListStatus("idle");
-    setDocuments(documents);
+
+    const sortedDocuments = documents.sort((a: Document, b:Document) => {
+      if (a.filename === ALL_DOCUMENTS) return -1;
+      if (b.filename === ALL_DOCUMENTS) return 1;
+      return 0;
+    });
+  
+    setDocuments(sortedDocuments);
   };
 
   useEffect(() => {
@@ -24,7 +33,7 @@ const DocumentList: React.FC = () => {
   return (
     <div>
       <div className="flex justify-between pt-6 pb-4">
-        <h2 className="text-2xl font-bold">My documents</h2>
+        <h2 className="text-2xl font-bold text-gray-800">My documents</h2>
         <button
           onClick={fetchData}
           type="button"
@@ -37,9 +46,8 @@ const DocumentList: React.FC = () => {
           />
         </button>
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        {documents &&
-          documents.length > 0 &&
+      <div className="max-h-80 grid grid-cols-3 gap-4 overflow-y-auto">
+        {documents && documents.length > 0 &&
           documents.map((document: Document) => (
             <Link
               to={`/doc/${document.documentid}/${document.conversations[0].conversationid}/`}
@@ -48,10 +56,10 @@ const DocumentList: React.FC = () => {
             >
               <DocumentDetail document={document} onDocumentDeleted={fetchData}/>
             </Link>
-          ))}
+        ))}
       </div>
       {listStatus === "idle" && documents.length === 0 && (
-        <div className="flex flex-col items-center mt-4">
+        <div className="flex flex-col items-center mt-4 text-gray-800">
           <p className="font-bold text-lg">There's nothing here yet...</p>
           <p className="mt-1">Upload your first document to get started!</p>
         </div>

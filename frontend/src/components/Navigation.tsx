@@ -18,28 +18,28 @@ const Navigation: React.FC<NavigationProps> = ({
   handleSignOutClick,
 }: NavigationProps) => {
   return (
-    <nav className="bg-violet-900">
+    <nav>
       <div className="container flex flex-wrap items-center justify-between py-3">
         <Link
           to="/"
-          className="inline-flex items-center self-center text-2xl font-semibold whitespace-nowrap text-white"
+          className="inline-flex items-center self-center text-4xl font-semibold whitespace-nowrap text-teal-900"
         >
-          <ChatBubbleLeftRightIcon className="w-6 h-6 mr-1.5" />
+          <ChatBubbleLeftRightIcon className="w-8 h-8 mr-1.5" />
           {import.meta.env.VITE_APP_NAME}
         </Link>
         <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
           <div className="relative ml-3">
             <Menu>
-              <Menu.Button className="text-center inline-flex items-center text-white text-sm underline-offset-2 hover:underline">
+              <Menu.Button className="text-center inline-flex items-center text-teal-900 text-sm underline-offset-2 hover:underline">
                 {userInfo?.attributes?.email}
-                <ChevronDownIcon className="w-3 h-3 ml-1 text-white" />
+                <ChevronDownIcon className="w-3 h-3 ml-1 text-teal-900" />
               </Menu.Button>
               <Menu.Items className="absolute right-0 z-10 mt-2 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <div className="px-1 py-1 ">
                   <Menu.Item>
                     <button
                       onClick={handleSignOutClick}
-                      className="group w-full inline-flex items-center rounded-md px-2 py-2 text-sm underline-offset-2 hover:underline"
+                      className="group w-full inline-flex items-center rounded-md px-2 py-2 text-sm underline-offset-2 hover:underline text-teal-900"
                     >
                       <ArrowLeftOnRectangleIcon className="w-4 h-4 mr-1" />
                       Sign Out
