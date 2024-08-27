@@ -93,7 +93,7 @@ def lambda_handler(event, context):
     collection_names = [f"{user_id}_{ALL_DOCUMENTS}", f"{user_id}_{file_name_full}"]
     ids = {
         f"{user_id}_{file_name_full}": [f"{user_id}_{file_name_full}_{i}" for i in range(len(split_document))],
-        f"{user_id}_{ALL_DOCUMENTS}": [f"{user_id}_{file_name_full}_{ALL_DOCUMENTS}_{i}" for i in range(len(split_document))]
+        f"{user_id}_{ALL_DOCUMENTS}": [f"{user_id}_{file_name_full}_{i}_{ALL_DOCUMENTS}" for i in range(len(split_document))]
     }
     for collection_name in collection_names:
         vector_store = PGVector(
