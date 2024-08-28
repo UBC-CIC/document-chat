@@ -11,14 +11,10 @@ import * as lambda_event_sources from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as amplify from '@aws-cdk/aws-amplify-alpha';
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as rds from 'aws-cdk-lib/aws-rds';
-// import * as waf from "aws-cdk-lib/aws-wafv2";
-// import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
-// import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import { BuildSpec } from "aws-cdk-lib/aws-codebuild";
 import { Construct } from 'constructs';
 
 interface LifeCycleAnalysisChatStackProps extends StackProps {
-  frontend?: string;
   modelId?: string;
   embeddingModelId?: string;
 }
@@ -28,14 +24,20 @@ export class LifeCycleAnalysisChatStack extends Stack {
     super(scope, id, props);
 
     const {
-      frontend = 'amplify',
       modelId = 'mistral.mixtral-8x7b-instruct-v0:1' /** originally: 'anthropic.claude-3-sonnet-20240229-v1:0' */,
       embeddingModelId = 'amazon.titan-embed-text-v2:0',
     } = props;
   
 
 
-    // VPC - verify configuration
+    // VPC
+    /**
+     * If your VPC is created outside your CDK app, you can use Vpc.fromLookup(). 
+     * The CDK CLI will search for the specified VPC in the the stack’s region and account, 
+     * and import the subnet configuration. Looking up can be done by VPC ID, 
+     * but more flexibly by searching for a specific tag on the VPC.
+     * https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_ec2/VpcLookupOptions.html
+     */
     const natGatewayProvider = ec2.NatProvider.gateway()
     const vpc = new ec2.Vpc(this, 'VPC', {
       vpcName: `${this.stackName.toLowerCase()}-${this.region}-${this.account}`,
@@ -440,124 +442,75 @@ export class LifeCycleAnalysisChatStack extends Stack {
 
     
 
-    // Conditional resources for Amplify deployment
-    if (frontend === 'amplify') {
+    // Amplify App
+    const username = cdk.aws_ssm.StringParameter.valueForStringParameter(
+      this,
+      "repository-owner-name"
+    );
 
-      const username = cdk.aws_ssm.StringParameter.valueForStringParameter(
-        this,
-        "repository-owner-name"
-      );
-
-      const amplifyApp = new amplify.App(this, 'AmplifyApp', {
-        appName: `${this.stackName}-${this.region}-${this.account}`,
-        sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
-          owner: username,
-          repository: 'LCI-forestry',
-          oauthToken: cdk.SecretValue.secretsManager(
-            "github-personal-access-token",
-            {
-              jsonField: "my-github-token",
-            }
-          ),
-        }),
-        buildSpec: BuildSpec.fromObject({
-          version: '1',
-          applications: [
-            {
-              frontend: {
-                phases: {
-                  preBuild: {
-                    commands: ['npm ci'],
-                  },
-                  build: {
-                    commands: ['npm run build'],
-                  },
+    const amplifyApp = new amplify.App(this, 'AmplifyApp', {
+      appName: `${this.stackName}-${this.region}-${this.account}`,
+      sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
+        owner: username,
+        repository: 'LCI-forestry',
+        oauthToken: cdk.SecretValue.secretsManager(
+          "github-personal-access-token",
+          {
+            jsonField: "my-github-token",
+          }
+        ),
+      }),
+      buildSpec: BuildSpec.fromObject({
+        version: '1',
+        applications: [
+          {
+            frontend: {
+              phases: {
+                preBuild: {
+                  commands: ['npm ci'],
                 },
-                artifacts: {
-                  baseDirectory: 'dist',
-                  files: ['**/*'],
-                },
-                cache: {
-                  paths: ['node_modules/**/*'],
+                build: {
+                  commands: ['npm run build'],
                 },
               },
-              appRoot: 'frontend',
+              artifacts: {
+                baseDirectory: 'dist',
+                files: ['**/*'],
+              },
+              cache: {
+                paths: ['node_modules/**/*'],
+              },
             },
-          ],
-        }),
-        environmentVariables: {
-          AMPLIFY_MONOREPO_APP_ROOT: 'frontend',
-          VITE_REGION: this.region,
-          VITE_API_ENDPOINT: `https://${api.restApiId}.execute-api.${this.region}.${cdk.Aws.URL_SUFFIX}/dev`,
-          VITE_USER_POOL_ID: userPool.userPoolId,
-          VITE_USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
-          VITE_APP_NAME: 'Life Cycle Chat',
-          VITE_API_NAME: `${api.restApiName}`
-        },
-      });
+            appRoot: 'frontend',
+          },
+        ],
+      }),
+      environmentVariables: {
+        AMPLIFY_MONOREPO_APP_ROOT: 'frontend',
+        VITE_REGION: this.region,
+        VITE_API_ENDPOINT: `https://${api.restApiId}.execute-api.${this.region}.${cdk.Aws.URL_SUFFIX}/dev`,
+        VITE_USER_POOL_ID: userPool.userPoolId,
+        VITE_USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+        VITE_APP_NAME: 'Life Cycle Chat',
+        VITE_API_NAME: `${api.restApiName}`
+      },
+    });
 
-      const amplifyBranch = amplifyApp.addBranch('main', {
-        autoBuild: true,
-      });
+    const amplifyBranch = amplifyApp.addBranch('main', {
+      autoBuild: true,
+    });
 
-      // // CloudFront distribution
-      // const cloudFrontDistribution = new cloudfront.Distribution(this, 'CloudFrontDistribution', {
-      //   defaultBehavior: {
-      //     origin: new origins.HttpOrigin(`${amplifyApp.defaultDomain}`, {
-      //       originPath: '/build'
-      //     }),
-      //     viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      //   },
-      // });
-
-      // // WAF WebACL
-      // const webAcl = new waf.CfnWebACL(this, 'WebACL', {
-      //   defaultAction: { allow: {} },
-      //   scope: 'CLOUDFRONT',
-      //   visibilityConfig: {
-      //     cloudWatchMetricsEnabled: true,
-      //     metricName: 'webACL',
-      //     sampledRequestsEnabled: true,
-      //   },
-      //   rules: [
-      //     {
-      //       name: 'AWS-AWSManagedRulesCommonRuleSet',
-      //       priority: 1,
-      //       overrideAction: { none: {} },
-      //       statement: {
-      //         managedRuleGroupStatement: {
-      //           name: 'AWSManagedRulesCommonRuleSet',
-      //           vendorName: 'AWS'
-      //         }
-      //       },
-      //       visibilityConfig: {
-      //         cloudWatchMetricsEnabled: true,
-      //         metricName: 'AWS-AWSManagedRulesCommonRuleSet',
-      //         sampledRequestsEnabled: true,
-      //       }
-      //     }
-      //   ],
-      // });
-
-      // // Associate WAF with CloudFront
-      // new waf.CfnWebACLAssociation(this, 'WebACLAssociation', {
-      //   resourceArn: cloudFrontDistribution.distributionId,
-      //   webAclArn: webAcl.attrArn,
-      // });
-
-      new cdk.CfnOutput(this, 'AmplifyAppId', {
-        value: amplifyApp.appId,
-      });
-
-      new cdk.CfnOutput(this, 'AmplifyBranchUrl', {
-        value: `https://${amplifyBranch.branchName}.${amplifyApp.defaultDomain}`,
-      });
-
-    }
-
-
+  
 
     // Outputs
+    new cdk.CfnOutput(this, 'AmplifyAppId', {
+      value: amplifyApp.appId,
+    });
+
+    new cdk.CfnOutput(this, 'AmplifyBranchUrl', {
+      value: `https://${amplifyBranch.branchName}.${amplifyApp.defaultDomain}`,
+    });
+
     new cdk.CfnOutput(this, 'CognitoUserPoolId', {
       value: userPool.userPoolId,
     });
