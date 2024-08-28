@@ -8,6 +8,7 @@
     - [Step 2: Upload Secrets](#step-2-upload-secrets)
     - [Step 3: CDK Deployment](#step-3-cdk-deployment)
 - [Post-Deployment](#post-deployment)
+- [Cleanup](#cleanup)
 
 ## Requirements
 Before you deploy, you must have the following installed on your device:
@@ -79,15 +80,16 @@ Open a terminal in the `/backend` directory.
 3. API stage (e.x. dev, prod, etc.) as `apiStage`
 4. Application name as `applicationName`
 All parameters can be set in the [cdk stack](../backend/lib/life-cycle-analysis-chat.ts) as follows:
+
 ![](./images/stack_params.png)
 
-**Initialize the CDK stacks**(required only if you have not deployed any resources with CDK in this region before). Please replace `<your-profile-name>` with the appropriate AWS profile used earlier.
+**Initialize the CDK stack**(required only if you have not deployed any resources with CDK in this region before). Please replace `<your-profile-name>` with the appropriate AWS profile used earlier.
 ```
 cdk synth --profile <your-profile-name>
 cdk bootstrap aws://<YOUR_AWS_ACCOUNT_ID>/<YOUR_ACCOUNT_REGION> --profile <your-profile-name>
 ```
 
-**Deploy CDK stacks**
+**Deploy CDK stack**
 You may run the following command to deploy the stacks all at once. Again, replace `<your-profile-name>` with the appropriate AWS profile used earlier.
 ```
 cdk deploy --all --profile <your-profile-name>
@@ -97,9 +99,11 @@ cdk deploy --all --profile <your-profile-name>
 ### Step 1: Build AWS Amplify App
 
 Log in to AWS console, and navigate to **AWS Amplify**. You can do so by typing `Amplify` in the search bar at the top.
+
 ![AWS Amplify Console](./images/amplify_search.png)
 
-From `All apps`, click `LifeCycleAnalysisChat-...` to go to the app settings. Note down the app-id.\
+From `All apps`, click `LifeCycleAnalysisChat-...` to go to the app settings. Note down the `App ID`.
+
 ![image](./images/amplify_app_id.png)
 
 You may run the following command to build the app. Please replace `<app-id>` with the app ID found in amplify and `<profile-name>` with the appropriate AWS profile used earlier. 
@@ -109,13 +113,14 @@ aws amplify start-job --job-type RELEASE --app-id <app-id> --branch-name main --
 This will trigger the build. 
 When the build is completed, you will see the screen as shown in the below image.
 Please note down the URL highlighted in red, as this will be the URL of the web application.
-![image](./images/amplify_url.png)
 
+![image](./images/amplify_url.png)
 
 ### Step 2: Visit Web App
 You can now navigate to the URL shown above to see your application in action.
 
-### Extra: Taking down the deployed stacks
+## Cleanup
+### Taking down the deployed stacks
 To take down the deployed stack for a fresh redeployment in the future, navigate to AWS Cloudformation on the AWS Console, click on the stack and hit Delete.
 
 Alternatively, run the following in the `/backend` folder:
