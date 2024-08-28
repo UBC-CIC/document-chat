@@ -49,15 +49,17 @@ def delete_collection(collection_name, connection_str, embeddings):
     )
     pgvector.delete_collection()
 
-def delete_from_user_collection(user_id, document, connection_str, embeddings):
+def delete_from_user_all_documents(user_id, document, connection_str, embeddings):
     response = document_table.get_item(
         Key={"userid": user_id, "documentid": ALL_DOCUMENTS}
     )
     if "Item" in response:
         documents_all = response["Item"]
-        # Remove document_split_ids from documents_all split ids
+
+        document_split_ids_suffixed = [f"{id}_{ALL_DOCUMENTS}" for id in document["document_split_ids"]]
+        # Remove document split ids from documents_all split ids
         documents_all["document_split_ids"] = [
-            id for id in documents_all["document_split_ids"] if id not in document["document_split_ids"]
+            id for id in documents_all["document_split_ids"] if id not in document_split_ids_suffixed
         ]
 
         collection_name = f"{user_id}_{ALL_DOCUMENTS}"
@@ -68,7 +70,7 @@ def delete_from_user_collection(user_id, document, connection_str, embeddings):
         )
 
         if not documents_all["document_split_ids"]:
-            # Delete documents_all and related conversations since document_split_ids is empty
+            # Delete documents_all and related conversations since document_all_split_ids is empty
             with memory_table.batch_writer() as batch:
                 for item in documents_all["conversations"]:
                     batch.delete_item(Key={"SessionId": item["conversationid"]})
@@ -97,10 +99,12 @@ def delete_from_user_collection(user_id, document, connection_str, embeddings):
             )
             
             # Remove embeddings from user collection
-            pgvector.delete(document["document_split_ids"])
+            pgvector.delete(document_split_ids_suffixed)
 
-        
 
+'''
+NOTE: Deleting ALL_DOCUMENTS is disabled on the frontend
+'''
 @logger.inject_lambda_context(log_event=True)
 def lambda_handler(event, context):
     user_id = event["requestContext"]["authorizer"]["claims"]["sub"]
@@ -142,7 +146,7 @@ def lambda_handler(event, context):
     delete_collection(user_file_collection_name, connection_str, embeddings)
 
     if document_id is not ALL_DOCUMENTS:
-        delete_from_user_collection(user_id, document, connection_str, embeddings)
+        delete_from_user_all_documents(user_id, document, connection_str, embeddings)
 
     logger.info("Deletion complete")
 
