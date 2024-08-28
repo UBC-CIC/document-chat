@@ -24,10 +24,12 @@ export class LifeCycleAnalysisChatStack extends Stack {
     super(scope, id, props);
 
     const {
-      modelId = 'mistral.mixtral-8x7b-instruct-v0:1' /** originally: 'anthropic.claude-3-sonnet-20240229-v1:0' */,
+      modelId = 'mistral.mixtral-8x7b-instruct-v0:1',
       embeddingModelId = 'amazon.titan-embed-text-v2:0',
     } = props;
-  
+
+    const apiStage = 'dev';
+    const applicationName = 'Life Cycle Chat';
 
 
     // VPC
@@ -180,9 +182,9 @@ export class LifeCycleAnalysisChatStack extends Stack {
 
     // API Gateway
     const api = new apigateway.RestApi(this, 'Api', {
-      restApiName: 'life-cycle-analysis-chat',
+      restApiName: applicationName.toLowerCase().replace(" ", "-"),
       deployOptions: {
-        stageName: 'dev',
+        stageName: apiStage,
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
         dataTraceEnabled: true,
       },
@@ -488,10 +490,10 @@ export class LifeCycleAnalysisChatStack extends Stack {
       environmentVariables: {
         AMPLIFY_MONOREPO_APP_ROOT: 'frontend',
         VITE_REGION: this.region,
-        VITE_API_ENDPOINT: `https://${api.restApiId}.execute-api.${this.region}.${cdk.Aws.URL_SUFFIX}/dev`,
+        VITE_API_ENDPOINT: `https://${api.restApiId}.execute-api.${this.region}.${cdk.Aws.URL_SUFFIX}/${apiStage}`,
         VITE_USER_POOL_ID: userPool.userPoolId,
         VITE_USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
-        VITE_APP_NAME: 'Life Cycle Chat',
+        VITE_APP_NAME: applicationName,
         VITE_API_NAME: `${api.restApiName}`
       },
     });
@@ -520,7 +522,7 @@ export class LifeCycleAnalysisChatStack extends Stack {
     });
 
     new cdk.CfnOutput(this, 'ApiGatewayBaseUrl', {
-      value: `https://${api.restApiId}.execute-api.${this.region}.${cdk.Aws.URL_SUFFIX}/dev`,
+      value: `https://${api.restApiId}.execute-api.${this.region}.${cdk.Aws.URL_SUFFIX}/${apiStage}`,
     });
   }
 }
