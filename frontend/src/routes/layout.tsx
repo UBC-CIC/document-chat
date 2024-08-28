@@ -1,11 +1,14 @@
 import { Outlet } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Auth } from "aws-amplify";
 import Navigation from "../components/Navigation";
-import Footer from "../components/Footer";
 
-const Layout: React.FC = () => {
-  const [userInfo, setUserInfo] = useState<any>(null);
+interface LayoutProps {
+  userInfo: any;
+  setUserInfo: (userInfo: any) => void;
+}
+
+const Layout: React.FC<LayoutProps> = ({ userInfo, setUserInfo }: LayoutProps) => {
 
   useEffect(() => {
     (async () => setUserInfo(await Auth.currentUserInfo()))();
@@ -16,20 +19,18 @@ const Layout: React.FC = () => {
   ) => {
     event.preventDefault();
     await Auth.signOut();
+    setUserInfo(null);
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <div>
-        <Navigation
-          userInfo={userInfo}
-          handleSignOutClick={handleSignOutClick}
-        />
-        <div className="container mt-6 mb-6">
-          <Outlet />
-        </div>
+    <div>
+      <Navigation
+        userInfo={userInfo}
+        handleSignOutClick={handleSignOutClick}
+      />
+      <div className="container mt-6 mb-6">
+        <Outlet />
       </div>
-      <Footer />
     </div>
   );
 };
