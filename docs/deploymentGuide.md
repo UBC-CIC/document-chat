@@ -1,4 +1,4 @@
-# Deployment walkthrough
+# Deployment Guide
 
 ## Table of Contents
 - [Requirements](#requirements)
@@ -120,7 +120,7 @@ Please note down the URL highlighted in red, as this will be the URL of the web 
 You can now navigate to the URL shown above to see your application in action.
 
 ## Cleanup
-### Taking down the deployed stacks
+### Taking down the deployed stack
 To take down the deployed stack for a fresh redeployment in the future, navigate to AWS Cloudformation on the AWS Console, click on the stack and hit Delete.
 
 Alternatively, run the following in the `/backend` folder:
