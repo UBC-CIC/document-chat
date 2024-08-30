@@ -14,13 +14,13 @@ import * as rds from 'aws-cdk-lib/aws-rds';
 import { BuildSpec } from "aws-cdk-lib/aws-codebuild";
 import { Construct } from 'constructs';
 
-interface LifeCycleAnalysisChatStackProps extends StackProps {
+interface DocumentChatStackProps extends StackProps {
   modelId?: string;
   embeddingModelId?: string;
 }
 
-export class LifeCycleAnalysisChatStack extends Stack {
-  constructor(scope: Construct, id: string, props: LifeCycleAnalysisChatStackProps) {
+export class DocumentChatStack extends Stack {
+  constructor(scope: Construct, id: string, props: DocumentChatStackProps) {
     super(scope, id, props);
 
     const {
@@ -28,10 +28,16 @@ export class LifeCycleAnalysisChatStack extends Stack {
       embeddingModelId = 'amazon.titan-embed-text-v2:0',
     } = props;
 
+    // Define parameters
+    const githubRepoName = new cdk.CfnParameter(this, 'githubRepoName', {
+      type: 'String',
+      description: 'The name of the GitHub repository',
+    }).valueAsString;
     const apiStage = 'dev';
-    const applicationName = 'Life Cycle Chat';
+    const applicationName = 'Document Chat';
 
 
+    
     // VPC
     /**
      * If your VPC is created outside your CDK app, you can use Vpc.fromLookup(). 
@@ -77,8 +83,8 @@ export class LifeCycleAnalysisChatStack extends Stack {
         ec2.InstanceClass.BURSTABLE3,
         ec2.InstanceSize.MEDIUM,
       ),
-      credentials: rds.Credentials.fromUsername('lci_admin', {
-        secretName: "lci_forestry/credentials/db",
+      credentials: rds.Credentials.fromUsername('document_chat_admin', {
+        secretName: "document_chat/credentials/db",
       }),
       multiAz: true,
       deletionProtection: true,
@@ -94,7 +100,7 @@ export class LifeCycleAnalysisChatStack extends Stack {
         {
           allowedHeaders: ['*'],
           allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.PUT, s3.HttpMethods.HEAD, s3.HttpMethods.POST, s3.HttpMethods.DELETE],
-          allowedOrigins: ['*'], /** TODO: check why this reverts to amplify origin in deployment */
+          allowedOrigins: ['*'],
         },
       ],
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -454,7 +460,7 @@ export class LifeCycleAnalysisChatStack extends Stack {
       appName: `${this.stackName}-${this.region}-${this.account}`,
       sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
         owner: username,
-        repository: 'LCI-forestry',
+        repository: githubRepoName,
         oauthToken: cdk.SecretValue.secretsManager(
           "github-personal-access-token",
           {
