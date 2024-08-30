@@ -1,4 +1,4 @@
-# Life Cycle Chat 
+# Document Chat 
 
 The LCI prototype solution is an automated pipeline that uses a large language model (LLM) to validate LCI data and the underlying assumptions.
 
