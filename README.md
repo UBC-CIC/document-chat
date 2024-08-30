@@ -1,6 +1,6 @@
-# Life Cycle Chat 
+# Document Chat
 
-The LCI prototype solution is an automated pipeline that uses a large language model (LLM) to validate LCI data and the underlying assumptions.
+This sample application allows you to ask natural language questions of any PDF document you upload. It combines the text generation and analysis capabilities of a Large Language Model (LLM) with a vector search of the document content.
 
 | Index                                               | Description                                             |
 | :-------------------------------------------------- | :------------------------------------------------------ |
@@ -61,6 +61,8 @@ N/A
 ## Credits
 
 This application was architected and developed by David Mwita and Arshia Moghimi. Thanks to the UBC Cloud Innovation Centre Technical and Project Management teams for their guidance and support.
+
+This was based on work from [ServerlessPDFChat](https://github.com/aws-samples/serverless-pdf-chat).
 
 ## License
 

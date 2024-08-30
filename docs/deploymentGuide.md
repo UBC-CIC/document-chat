@@ -30,7 +30,7 @@ To deploy this solution, you will need to generate a GitHub personal access toke
 
 ## Deployment
 ### Step 1: Fork & Clone The Repository
-First, you need to fork the repository. To create a fork, navigate to the [main branch](https://github.com/UBC-CIC/LCI-forestry) of this repository. Then, in the top-right corner, click `Fork`.
+First, you need to fork the repository. To create a fork, navigate to the [main branch](https://github.com/UBC-CIC/document-chat) of this repository. Then, in the top-right corner, click `Fork`.
 
 ![](./images/fork.jpeg)
 
@@ -41,11 +41,11 @@ Now let's clone the GitHub repository onto your machine. To do this:
 2. For an Apple computer, open Terminal. If on a Windows machine, open Command Prompt or Windows Terminal. Enter into the folder you made using the command `cd path/to/folder`. To find the path to a folder on a Mac, right click on the folder and press `Get Info`, then select the whole text found under `Where:` and copy with ⌘C. On Windows (not WSL), enter into the folder on File Explorer and click on the path box (located to the left of the search bar), then copy the whole text that shows up.
 3. Clone the GitHub repository by entering the following command. Be sure to replace `<YOUR-GITHUB-USERNAME>` with your own username.
 ```
-git clone https://github.com/<YOUR-GITHUB-USERNAME>/LCI-forestry.git
+git clone https://github.com/<YOUR-GITHUB-USERNAME>/document-chat.git
 ```
 The code should now be in the folder you created. Navigate into the root folder containing the entire codebase by running the command:
 ```
-cd LCI-forestry
+cd document-chat
 ```
 
 ### Step 2: Upload Secrets
