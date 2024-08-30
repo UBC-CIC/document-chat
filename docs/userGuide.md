@@ -8,6 +8,7 @@ Once you have deployed the solution, the following user guide will help you navi
 | Index    | Description |
 | -------- | ------- |
 | [Creating Users](#creating-users)  | How to create user profiles |
+| [Requesting Model Access](#requesting-model-access)  | How to request model access |
 | [Using the Application](#using-the-application)  | How to use the application |
 
 ## Creating Users
@@ -32,6 +33,21 @@ To create a user, open the AWS Console and do the following:
 5. Click `Create User`
 
 The user should now be created. You can now login into the application.
+
+
+## Requesting Model Access
+To request model access:
+
+1. Navigate to Amazon Bedrock
+
+2. On the left panel, select `Model Access` under `Bedrock Configurations`
+
+3. Request access to the Embedding and LLM models you specified in the [deployment stack](../backend/lib/document-chat.ts)
+
+For instance:
+![image](./images/model_access.png)
+
+Model access should be granted immediately. You can now begin using the application.
 
 
 ## Using the Application
