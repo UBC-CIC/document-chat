@@ -79,7 +79,7 @@ Open a terminal in the `/backend` directory.
 2. Embedding model as `embeddingModelId`
 3. API stage (e.x. dev, prod, etc.) as `apiStage`
 4. Application name as `applicationName`
-All parameters can be set in the [cdk stack](../backend/lib/life-cycle-analysis-chat.ts) as follows:
+All parameters can be set in the [cdk stack](../backend/lib/document-chat.ts) as follows:
 
 ![](./images/stack_params.png)
 
@@ -92,32 +92,32 @@ cdk bootstrap aws://<YOUR_AWS_ACCOUNT_ID>/<YOUR_ACCOUNT_REGION> --profile <your-
 **Deploy CDK stack**
 You may run the following command to deploy the stacks all at once. Again, replace `<your-profile-name>` with the appropriate AWS profile used earlier.
 ```
-cdk deploy --all --profile <your-profile-name>
+cdk deploy DocumentChat --parameters githubRepoName=document-chat --profile <your-profile-name>
 ```
+
+Once the deployment is complete, you will receive the following output:
+
+![deployment output](./images/deployment_output.png)
+
+Take note of the `Amplify App ID` as it will be used in the next step. The `Amplify Branch URL` is the public URL you will use to access the web application.
 
 ## Post-Deployment
 ### Step 1: Build AWS Amplify App
 
-Log in to AWS console, and navigate to **AWS Amplify**. You can do so by typing `Amplify` in the search bar at the top.
+If you'd like to access Amplify details via the AWS Console, you can:
+1. Log in to AWS console, and navigate to **AWS Amplify**. You can do so by typing `Amplify` in the search bar at the top.
+2. From `All apps`, click `DocumentChat-...`.
+There, you have access to the `Amplify App ID` and the public domain name to use the web app.
 
-![AWS Amplify Console](./images/amplify_search.png)
-
-From `All apps`, click `LifeCycleAnalysisChat-...` to go to the app settings. Note down the `App ID`.
-
-![image](./images/amplify_app_id.png)
-
-You may run the following command to build the app. Please replace `<app-id>` with the app ID found in amplify and `<profile-name>` with the appropriate AWS profile used earlier. 
+Run the following command to build the app. Please replace `<app-id>` with the app ID found in amplify and `<profile-name>` with the appropriate AWS profile used earlier. 
 ```
 aws amplify start-job --job-type RELEASE --app-id <app-id> --branch-name main --profile <profile-name>
 ```
 This will trigger the build. 
-When the build is completed, you will see the screen as shown in the below image.
-Please note down the URL highlighted in red, as this will be the URL of the web application.
-
-![image](./images/amplify_url.png)
+When the build is completed, the Amplify console will display a `deployed` status.
 
 ### Step 2: Visit Web App
-You can now navigate to the URL shown above to see your application in action.
+You can now navigate to the web app URL to see your application in action.
 
 ## Cleanup
 ### Taking down the deployed stack
@@ -125,5 +125,5 @@ To take down the deployed stack for a fresh redeployment in the future, navigate
 
 Alternatively, run the following in the `/backend` folder:
 ```
-cdk destroy --all --profile <your-profile-name>
+cdk destroy DocumentChat --profile <your-profile-name>
 ```
