@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
               width={20}
               className="mr-1.5 py-2 mx-2"
             />
-            <a href="https://github.com/UBC-CIC/LCI-forestry">
+            <a href="https://github.com/UBC-CIC/document-chat">
               Source code on GitHub
             </a>
           </div>
