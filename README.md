@@ -60,7 +60,7 @@ N/A
 
 ## Credits
 
-This application was architected and developed by [David Mwita](https://www.linkedin.com/in/davidmwita/) and [Arshia Moghimi](https://www.linkedin.com/in/arshia-moghimi-3a7a41150/). Thanks to the UBC Cloud Innovation Centre Technical and Project Management teams for their guidance and support.
+This application was architected and developed by [David Mwita](https://www.linkedin.com/in/davidmwita/) and [Arshia Moghimi](https://www.linkedin.com/in/arshia-moghimi-3a7a41150/), with project support by [Miranda Newell](https://www.linkedin.com/in/miranda-newell-7669b01b2/). Thanks to the UBC Cloud Innovation Centre Technical and Project Management teams for their guidance and support.
 
 This was based on work from [ServerlessPDFChat](https://github.com/aws-samples/serverless-pdf-chat).
 
